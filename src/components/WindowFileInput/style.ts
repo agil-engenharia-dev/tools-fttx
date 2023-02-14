@@ -1,6 +1,10 @@
 import styled from "styled-components";
 
-export const FileInputContainer = styled.div`
+interface props{
+    file:boolean;
+}
+
+export const FileInputContainer = styled.div<props>`
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -12,15 +16,14 @@ export const FileInputContainer = styled.div`
     width: 500px;
     height: 300px;
     border-radius: 20px;
-    background-color: #2E2E2E;
+    background-color: ${props=>props.theme.secondary};
     opacity: .8;
     z-index: 1;
 
     img{
         padding-top:30px;
-        width: 100px;
         height: 110px;
-        opacity: .5;
+        opacity: 1;
     }
 
     div{
@@ -34,25 +37,31 @@ export const FileInputContainer = styled.div`
 
         input::file-selector-button,button{
             border: none;
-            background: #364F79;
+            background-color: ${props=>props.theme.primary};
+            color: ${props=>props.theme.fontColor};
             padding: 10px 20px;
             border-radius: 10px;
-            color: #fff;
             cursor: pointer;
             transition: .5s;
             width: 150px;
             height: 50px;
-            opacity: .6;
+            opacity: 1;
+     
+        }
+
+        button{
+            ${props=>{
+            return(!props.file && `
+                background-color:${props.theme.secondary};
+                border:2px solid ${props.theme.primary};
+                cursor: initial;
+                `)
+            }}
+
         }
 
         input::file-selector-button{
             margin-right: 30px;
-        }
-        input::file-selector-button:hover{
-            opacity:1;
-        }
-        button:hover{
-            opacity:1;
         }
     }
 

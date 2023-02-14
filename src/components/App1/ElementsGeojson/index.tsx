@@ -1,8 +1,8 @@
-import { FeatureGroup, GeoJSON, Popup } from "react-leaflet";
-import L, { bounds } from 'leaflet'
-import { GeoJSONFeature, GeoJSONInterface } from "../../../interfaces/geojson";
-import { ButtonRemoveElements } from "../ButtonRemoveElements";
-import { ButtonRemoveElementContainer } from "./ButtonRemoveElement/style";
+import {  GeoJSON, Popup } from "react-leaflet";
+import L from 'leaflet'
+import { GeoJSONInterface } from "../../../@types/style";
+import { TrashButtonContainer } from "./TrashButtonContainer/style";
+import { StyledPopup } from "../StyledPopup/style";
 
 
 
@@ -33,15 +33,17 @@ export function ElementsGeojson({geojson,removeFeatureById}:props){
                 pointToLayer={(feature, latlng) => {
                     return L.circle(latlng, {
                       radius: 10,
-                      fillColor: "red",
+                      fillColor: 'red',
                       })
                     }}
                 >
                     <Popup>
-                        <ButtonRemoveElementContainer onClick={()=>{removeFeatureById(feature.id)}}/>
+                        <StyledPopup>
+                        <TrashButtonContainer onClick={()=>{removeFeatureById(feature.id)}}/>
                         <p
                             style={{color:'#000'}}
                         >{feature.properties.name}</p>
+                        </StyledPopup>
                     </Popup>
                 </GeoJSON>)})}
 

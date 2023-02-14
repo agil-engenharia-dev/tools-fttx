@@ -1,11 +1,13 @@
 import styled from "styled-components";
 
-export const SideBarContainer = styled.div`
+interface props{}
+
+export const SideBarContainer = styled.div<props>`
     position: absolute;
     display: flex;
     flex-direction: column;
     align-items: center;
-    background: #2E2E2E;
+    background: ${props=>props.theme.secondary};
     opacity: .8;
     width: 400px;
     height: 100%;
@@ -13,13 +15,13 @@ export const SideBarContainer = styled.div`
 
     img{
         margin-top: 30px;
-        height:110px;
-        opacity: .5;
+        opacity: 1;
     }
 
     button{
         border: none;
-        background-color: #121212;
+        background-color: ${props=>props.theme.secondary};
+        border: 2px solid ${props=>props.theme.primary};
         opacity: .7;
         margin: 50px;
         border-radius: 10px;
@@ -35,7 +37,7 @@ export const SideBarContainer = styled.div`
         
     }
     button:hover{
-        background-color: #364F79;
+        background-color: ${props=>props.theme.primary};;
         opacity: 1;
     }
 

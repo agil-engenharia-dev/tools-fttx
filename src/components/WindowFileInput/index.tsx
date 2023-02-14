@@ -1,27 +1,27 @@
 import { ChangeEvent, useState } from "react";
 import { FileInputContainer } from "./style";
 
-
-interface props{
-  handleFileContent:(text:string)=>void;
+interface props {
+  handleFileContent: (text: string) => void;
 }
 
-export function WindowFileInput({handleFileContent}:props) {
+export function WindowFileInput({ handleFileContent }: props) {
   const [file, setFile] = useState<File | null>(null);
-  function handleFileChange(e: ChangeEvent<HTMLInputElement>) {
+
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       setFile(e.target.files[0]);
     }
-  }
+  };
 
-  function handleFileRead(e: ProgressEvent<FileReader>) {
+  const handleFileRead = (e: ProgressEvent<FileReader>) => {
     if (e.target?.result === null) {
-    return;
+      return;
     }
     handleFileContent(e.target!.result as string);
-  }
+  };
 
-  function handleUploadClick() {
+  const handleUploadClick = () => {
     if (!file) {
       return;
     }
@@ -29,10 +29,10 @@ export function WindowFileInput({handleFileContent}:props) {
     const reader = new FileReader();
     reader.onloadend = handleFileRead;
     reader.readAsText(file);
-  }
+  };
   return (
-    <FileInputContainer>
-      <img src="https://upload.wikimedia.org/wikipedia/commons/e/e4/Google_Earth_icon.svg"></img>
+    <FileInputContainer file={file ? true : false}>
+      <img src="https://i.ibb.co/X7y9BBL/image002-5f3f8cb5.png"></img>
       <div>
         <input type="file" onChange={handleFileChange}></input>
         <button onClick={handleUploadClick}>Enviar</button>

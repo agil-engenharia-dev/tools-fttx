@@ -1,7 +1,11 @@
 import mapboxgl from "mapbox-gl";
-import React, { Component } from "react";
+import { Component } from "react";
+import { DefaultTheme } from "styled-components";
 
-interface Props {}
+interface Props {
+  theme:DefaultTheme;
+}
+
 
 interface State {}
 
@@ -14,11 +18,10 @@ export class MapboxMap extends Component<Props, State> {
       "pk.eyJ1IjoiZWRnYXJiYXJyb3NvIiwiYSI6ImNsZGthYm1haDA0cWQzdmxjdnNwcnJoeGoifQ.VWGQI2nHd22h3A54eYWXOQ";
     this.map = new mapboxgl.Map({
       container: this.mapContainer!,
-      style: "mapbox://styles/mapbox/dark-v11",
+      style: this.props.theme.mapTheme,
       center: [-87.62712, 41.89033],
       zoom: 16,
-      maxZoom:17,
-      minZoom:15.5,
+      scrollZoom:false,
       pitch: 45,
     });
 
@@ -43,7 +46,7 @@ export class MapboxMap extends Component<Props, State> {
         type: "fill-extrusion",
         minzoom: 15,
         paint: {
-          "fill-extrusion-color": "#121212",
+          "fill-extrusion-color": `${this.props.theme.secondary}`,
 
           // use an 'interpolate' expression to add a smooth transition effect to the
           // buildings as the user zooms in
@@ -69,12 +72,14 @@ export class MapboxMap extends Component<Props, State> {
         },
       });
     });
+  
+  
   }
 
   rotateCamera(timestamp: number) {
     // clamp the rotation between 0 -360 degrees
     // Divide timestamp by 100 to slow rotation to ~10 degrees / sec
-    this.map!.rotateTo((timestamp / 100) % 360, { duration: 0 });
+    this.map!.rotateTo((timestamp / 400) % 360, { duration: 0 });
     // Request the next frame of the animation.
     requestAnimationFrame(this.rotateCamera.bind(this));
   }
@@ -86,7 +91,7 @@ export class MapboxMap extends Component<Props, State> {
   render() {
     return (
       <div
-        style={{ height: "100vh", width: "100vw" }}
+        style={{ height: "100vh", width: "100vw" ,cursor:'initial' }}
         ref={(el) => (this.mapContainer = el)}
       />
     );

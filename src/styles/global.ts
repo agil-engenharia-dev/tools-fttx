@@ -1,12 +1,18 @@
 import { createGlobalStyle } from "styled-components";
 
-export const GlobalStyle = createGlobalStyle`
+
+interface props{
+}
+
+export const GlobalStyle = createGlobalStyle<props>`
 
     *{
         margin: 0;
         padding: 0;
         box-sizing: border-box;
-        color: #fff;
+        font-family: 'Roboto', sans-serif;
+        font-weight: 700;
+        color: ${props=>props.theme.fontColor};
     }
 
 
