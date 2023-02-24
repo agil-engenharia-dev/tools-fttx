@@ -8,11 +8,13 @@ import { ThemeProvider } from "styled-components";
 import { defaultTheme } from "./styles/themes/default";
 import { darkTheme } from "./styles/themes/dark";
 import { ThemeType } from "./@types/style";
+import { App2 } from "./components/App2";
+import { App3 } from "./components/App3";
 
 export function App() {
   const [fileContent, setFileContent] = useState<string | null>(null);
   const [appSelected, setAppSelected] = useState<string | null>(null);
-  const [themeContext, setThemeContext] = useState<ThemeType>(darkTheme);
+  const [themeContext, setThemeContext] = useState<ThemeType>(defaultTheme);
   const MapboxMapComponent = useMemo(
     () => <MapboxMap theme={themeContext} />,
     []
@@ -22,30 +24,34 @@ export function App() {
 
   const renderSideBar = () => {
     
-    if (fileContent && !appSelected) {
-      setThemeContext(defaultTheme)
+    if (!fileContent && !appSelected) {
       return <SideBar handleAppSelected={handleAppSelected} />;
     }
     return null;
   };
 
   const renderFileInputWindow = () => {
-    if (!fileContent) {
-      return <WindowFileInput handleFileContent={handleFileContent} />;
+    if (!fileContent && appSelected) {
+      return <WindowFileInput handleFileContent={handleFileContent} namefile='projeto.kml'/>;
     }
     return null;
   };
 
   const renderMapboxMapComponent = () => {
-    if (!appSelected) {
+    if (!appSelected || !fileContent) {
       return MapboxMapComponent;
     }
     return null;
   };
 
-  const renderApp1 = () => {
+  const renderApps = () => {
     if (fileContent && appSelected) {
-      return <App1 fileContent={fileContent} />;
+      if (appSelected==='app1')
+        return <App1 fileContent={fileContent} />;
+      if (appSelected==='app2')
+        return <App2 fileContent={fileContent} />;
+      if (appSelected==='app3')
+        return <App3 fileContent={fileContent} />;
     }
     return null;
   };
@@ -53,7 +59,7 @@ export function App() {
     <ThemeProvider theme={themeContext}>
       {renderFileInputWindow()}
       {renderSideBar()}
-      {renderApp1()}
+      {renderApps()}
       {renderMapboxMapComponent()}
       <GlobalStyle />
     </ThemeProvider>

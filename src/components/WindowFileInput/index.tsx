@@ -3,9 +3,10 @@ import { FileInputContainer } from "./style";
 
 interface props {
   handleFileContent: (text: string) => void;
+  namefile?:string;
 }
 
-export function WindowFileInput({ handleFileContent }: props) {
+export function WindowFileInput({ handleFileContent , namefile}: props) {
   const [file, setFile] = useState<File | null>(null);
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -30,9 +31,11 @@ export function WindowFileInput({ handleFileContent }: props) {
     reader.onloadend = handleFileRead;
     reader.readAsText(file);
   };
+  
   return (
     <FileInputContainer file={file ? true : false}>
       <img src="https://i.ibb.co/X7y9BBL/image002-5f3f8cb5.png"></img>
+      {namefile && <label>Envie o arquivo {namefile}</label>}
       <div>
         <input type="file" onChange={handleFileChange}></input>
         <button onClick={handleUploadClick}>Enviar</button>

@@ -20,9 +20,11 @@ export class MapboxMap extends Component<Props, State> {
       container: this.mapContainer!,
       style: this.props.theme.mapTheme,
       center: [-87.62712, 41.89033],
-      zoom: 16,
+      zoom: 16.5,
+      boxZoom:false,
       scrollZoom:false,
-      pitch: 45,
+      doubleClickZoom:false,
+      pitch:45,
     });
 
     this.map.on("load", () => {
@@ -91,7 +93,7 @@ export class MapboxMap extends Component<Props, State> {
   render() {
     return (
       <div
-        style={{ height: "100vh", width: "100vw" ,cursor:'initial' }}
+        style={{ height: "100vh", width: "100vw" ,cursor:'initial' , }}
         ref={(el) => (this.mapContainer = el)}
       />
     );

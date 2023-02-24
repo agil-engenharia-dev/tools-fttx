@@ -6,8 +6,8 @@ interface props {
 
 export function ButtonChangeMap({changeMap}:props){
     return(
-    <ButtonContainer onClick={changeMap} title="trocar mapa">
-        <img src="https://cdn-icons-png.flaticon.com/512/235/235861.png" alt="botao troca mapa" />
+    <ButtonContainer onClick={changeMap} title="Change Map">
+        <img src="https://cdn-icons-png.flaticon.com/512/235/235861.png" />
     </ButtonContainer>
     )
 }

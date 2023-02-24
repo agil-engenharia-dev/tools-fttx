@@ -23,7 +23,7 @@ export const SideBarContainer = styled.div<props>`
         background-color: ${props=>props.theme.secondary};
         border: 2px solid ${props=>props.theme.primary};
         opacity: .7;
-        margin: 50px;
+        margin: 20px 50px 20px 50px;
         border-radius: 10px;
         box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.2);
         

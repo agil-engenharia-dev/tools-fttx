@@ -22,8 +22,13 @@ export const FileInputContainer = styled.div<props>`
 
     img{
         padding-top:30px;
+        padding-bottom: 10px;
         height: 110px;
         opacity: 1;
+    }
+
+    label{
+
     }
 
     div{

@@ -1,8 +1,14 @@
-import { GeoJSONInterface, GeoJSONFeature,mapUrlAttribution } from "../src/@types/style";
+import {
+  GeoJSONInterface,
+  GeoJSONFeature,
+  mapUrlAttribution,
+} from "../src/@types/style";
+import L, { LatLngTuple } from "leaflet";
 
 export function addIdToPlacemarks(kml: string) {
+  const kmlNoIds = removePlacemarkIds(kml)
   let placemarkCount = 0;
-  let newKml = kml.replace(/<Placemark.*?>/g, function (match) {
+  let newKml = kmlNoIds.replace(/<Placemark.*?>/g, function (match) {
     placemarkCount++;
     return match.replace(
       "<Placemark",
@@ -33,7 +39,7 @@ export function findCenter(geojson: GeoJSONInterface) {
   return center;
 }
 
-function pointInPolygon(
+export function pointInPolygon(
   point: GeoJSONFeature | Array<number>,
   polygon: GeoJSONFeature
 ) {
@@ -75,7 +81,7 @@ function pointInPolygon(
   return inside;
 }
 
-export function featureInPolygon(
+export function featureTotallyInPolygon(
   feature: GeoJSONFeature,
   polygon: GeoJSONFeature
 ) {
@@ -95,28 +101,317 @@ export function captureElements(tag: string, fileText: string) {
   return matches;
 }
 
-export function extractPlacemarkId(placemark: string): string {
-  const placemarkIdRegex = /id='(placemark-[\w-]+)'/;
-  const match = placemark.match(placemarkIdRegex);
+export function removePlacemarksByIds(kml: string, idsToKeep: string[]): string {
+  const parser = new DOMParser();
+  const xmlDoc = parser.parseFromString(kml, "application/xml");
+  const placemarks = xmlDoc.getElementsByTagName("Placemark");
 
-  if (!match) {
-    throw new Error("Placemark ID not found in the input string");
+  for (let i = placemarks.length - 1; i >= 0; i--) {
+    const placemark = placemarks[i];
+    const id = placemark.getAttribute("id") ?? '';
+
+    if (!idsToKeep.includes(id)) {
+      placemark.parentNode?.removeChild(placemark);
+    }
   }
 
-  return match[1];
+  return new XMLSerializer().serializeToString(xmlDoc);
 }
 
+function removePlacemarkIds(kml: string): string {
+  const parser = new DOMParser();
+  const xmlDoc = parser.parseFromString(kml, "application/xml");
+  const placemarks = xmlDoc.getElementsByTagName("Placemark");
+
+  for (let i = 0; i < placemarks.length; i++) {
+    const placemark = placemarks[i];
+    placemark.removeAttribute("id");
+  }
+
+  return new XMLSerializer().serializeToString(xmlDoc);
+}
+
+export function isLineWithinRadiusOfPoint(
+  point: GeoJSONFeature,
+  lineString: GeoJSONFeature,
+  acceptableDistance: number
+) {
+  for (let i = 0; i < lineString.geometry.coordinates.length - 1; i++) {
+    const l1 = {
+      lng: lineString.geometry.coordinates[i][0],
+      lat: lineString.geometry.coordinates[i][1],
+    };
+    const l2 = {
+      lng: lineString.geometry.coordinates[i + 1][0],
+      lat: lineString.geometry.coordinates[i + 1][1],
+    };
+    const distance = distanceFromPointToLine(
+      point.geometry.coordinates,
+      l1,
+      l2
+    );
+    if (distance <= acceptableDistance) {
+      return true;
+    }
+  }
+  return false;
+}
+
+export function convertKmlToGeojson(fileContent: string) {
+  const doc = new DOMParser().parseFromString(fileContent, "text/xml");
+  const placemarks = doc.getElementsByTagName("Placemark");
+  const result: GeoJSONInterface = {
+    type: "FeatureCollection",
+    features: [],
+  };
+
+  for (let i = 0; i < placemarks.length; i++) {
+    const placemark = placemarks[i];
+    const element = placemark?.parentNode as Element;
+    const folderName = element.getElementsByTagName("name")[0].textContent;
+    const placemarkObj: GeoJSONFeature = {
+      type: "Feature",
+      properties: {
+        folderName: folderName,
+        name: "",
+        description: "",
+      },
+      id: `placemark-${i}`,
+
+      geometry: {
+        type: "Point",
+        coordinates: null,
+      },
+    };
+
+    const nameElement = placemark.getElementsByTagName("name")[0];
+    if (nameElement) {
+      placemarkObj.properties.name = nameElement.textContent;
+    }
+
+    const descriptionElement = placemark.getElementsByTagName("description")[0];
+    if (descriptionElement) {
+      placemarkObj.properties.description = descriptionElement.textContent;
+    }
+
+    const pointElement = placemark.getElementsByTagName("Point")[0];
+    if (pointElement) {
+      const coordinates =
+        pointElement.getElementsByTagName("coordinates")[0].textContent;
+      placemarkObj.geometry.type = "Point";
+      placemarkObj.geometry.coordinates = coordinates!
+        .split(",")
+        .map((stringNum) => Number(stringNum));
+    }
+
+    const lineStringElement = placemark.getElementsByTagName("LineString")[0];
+    if (lineStringElement) {
+      const coordinates =
+        lineStringElement.getElementsByTagName("coordinates")[0].textContent;
+      placemarkObj.geometry.type = "LineString";
+      placemarkObj.geometry.coordinates = coordinates!
+        .trim()
+        .split(/\s+/)
+        .map((coord) => coord.split(",").map(parseFloat));
+    }
+
+    const linearRingElement = placemark.getElementsByTagName("LinearRing")[0];
+    if (linearRingElement) {
+      const coordinates =
+        linearRingElement.getElementsByTagName("coordinates")[0].textContent;
+      placemarkObj.geometry.type = "Polygon";
+      placemarkObj.geometry.coordinates = coordinates!
+        .trim()
+        .split(/\s+/)
+        .map((coord) => coord.split(",").map(parseFloat));
+    }
+
+    result.features.push(placemarkObj);
+  }
+
+  return result;
+}
+
+function distanceFromPointToLine(
+  p0: Array<number>,
+  l1: L.LatLng,
+  l2: L.LatLng
+) {
+  const p = L.latLng(p0[1],p0[0])
+  const dx = l2.lng - l1.lng;
+  const dy = l2.lat - l1.lat;
+  if (dx === 0 && dy === 0) {
+    return p.distanceTo(l1);
+  }
+
+  const t =
+    ((p.lng - l1.lng) * dx + (p.lat - l1.lat) * dy) / (dx * dx + dy * dy);
+
+  if (t < 0) {
+    return p.distanceTo(l1);
+  }
+  if (t > 1) {
+    return p.distanceTo(l2);
+  }
+
+  const nearestPoint = L.latLng(l1.lat + t * dy,l1.lng + t * dx)
+  return p.distanceTo(nearestPoint);
+}
+
+export function calculateDistance(
+  feature1: GeoJSONFeature | LatLngTuple[] | unknown,
+  feature2: GeoJSONFeature | LatLngTuple[] | unknown
+): number {
+  // Extrai as coordenadas dos dois pontos do GeoJSON ou dos arrays de coordenadas
+  const coords1 = Array.isArray(feature1)
+    ? feature1 as LatLngTuple
+    : (feature1 as GeoJSONFeature).geometry.coordinates as LatLngTuple;
+  const coords2 = Array.isArray(feature2)
+    ? feature2 as LatLngTuple
+    : (feature2 as GeoJSONFeature).geometry.coordinates as LatLngTuple;
+
+  // Cria objetos L.LatLng a partir das coordenadas
+  const latLng1 = L.latLng(coords1[1], coords1[0]);
+  const latLng2 = L.latLng(coords2[1], coords2[0]);
+
+  // Calcula a distância entre os dois pontos em metros
+  const distance = latLng1.distanceTo(latLng2);
+
+  // Retorna a distância em metros
+  return distance
+ 
+}
+
+export function calculateAngleBetweenThreePoints(
+  c2: number[],
+  c1: number[],
+  c3: number[],
+): number {
+  // Convert coordinates to radians
+  const c1_lat_rad = c1[1] * (Math.PI / 180);
+  const c1_lon_rad = c1[0] * (Math.PI / 180);
+  const c2_lat_rad = c2[1] * (Math.PI / 180);
+  const c2_lon_rad = c2[0] * (Math.PI / 180);
+  const c3_lat_rad = c3[1] * (Math.PI / 180);
+  const c3_lon_rad = c3[0] * (Math.PI / 180);
+
+  // Calculate angles between the coordinates
+  const a = Math.acos(
+    Math.sin(c2_lat_rad) * Math.sin(c3_lat_rad) +
+      Math.cos(c2_lat_rad) *
+        Math.cos(c3_lat_rad) *
+        Math.cos(c3_lon_rad - c2_lon_rad)
+  );
+  const b = Math.acos(
+    Math.sin(c1_lat_rad) * Math.sin(c2_lat_rad) +
+      Math.cos(c1_lat_rad) *
+        Math.cos(c2_lat_rad) *
+        Math.cos(c2_lon_rad - c1_lon_rad)
+  );
+  const c = Math.acos(
+    Math.sin(c3_lat_rad) * Math.sin(c1_lat_rad) +
+      Math.cos(c3_lat_rad) *
+        Math.cos(c1_lat_rad) *
+        Math.cos(c1_lon_rad - c3_lon_rad)
+  );
+
+  // Calculate final angle
+  let angle: number;
+  try {
+    angle = Math.acos(
+      (Math.cos(a) - Math.cos(b) * Math.cos(c)) / (Math.sin(b) * Math.sin(c))
+    );
+    angle = angle * (180 / Math.PI);
+  } catch {
+    angle = 180;
+  }
+  if (Number.isNaN(angle)){return 180}
+  return angle;
+}
+
+export function convertGeojsonPointsInKml(geojson:GeoJSONInterface){
+  const points = geojson.features.map((point:GeoJSONFeature)=>{
+    return ('<Placemark>'+
+		`<name>${point.id}</name>`+
+		'<Point>'+
+    `<coordinates>${point.geometry.coordinates[0]},${point.geometry.coordinates[1]},0</coordinates>`+
+		'</Point>'+
+	'</Placemark>')
+  })
+  const kml =  ('<?xml version="1.0" encoding="UTF-8"?>'+
+  '<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2" xmlns:kml="http://www.opengis.net/kml/2.2" xmlns:atom="http://www.w3.org/2005/Atom">'+
+  '<Document>'+
+    '<name>KmlFile</name>'+
+    `${points}`+
+  '</Document>'+
+  '</kml>')
+
+  return kml
+}
+
+export function caboInPolygon(
+  feature: GeoJSONFeature,
+  polygon: GeoJSONFeature
+) {
+  if (feature.geometry.type === "Point") {
+    return pointInPolygon(feature, polygon);
+  }
+  let inside = false;
+  feature.geometry.coordinates.forEach((coord: Array<number>) => {
+    pointInPolygon(coord, polygon) ? (inside = true) : inside;
+  });
+  return inside;
+}
+
+export function caboMeters(cabo:GeoJSONFeature){
+  let meters = 0;
+  cabo.geometry.coordinates.forEach((coordinate:number[],index:number)=>{
+    if (index > 0){
+    const coord1 = L.latLng(cabo.geometry.coordinates[index-1][1],cabo.geometry.coordinates[index-1][0])
+    const coord2 = L.latLng(coordinate[1],coordinate[0])
+    meters+=coord1.distanceTo(coord2)
+  }
+  });
+
+  return meters;
+}
+
+export function angleWithNorth(coord1:number[],coord2:number[] ): number {
+  const lon1 = coord1[0]
+  const lat1 = coord1[1]
+  const lon2 = coord2[0]
+  const lat2 = coord2[1]
+  const dy = lat2 - lat1;
+  const dx = Math.cos(Math.PI / 180 * lat1) * (lon2 - lon1);
+  const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+  return Math.ceil(angle < 0 ? angle + 360 : angle);
+}
+
+export function countUnrepeatedCabos(coordinates:number[][][]){
+  const listAngles: number[] = [];
+  coordinates.forEach((listCoords:number[][])=>{
+    const coord1 = listCoords[0];
+    const coord2 = listCoords[1];
+    listAngles.push(angleWithNorth(coord1,coord2))
+  })
+  const uniqueArr: number[] = [...new Set(listAngles)];
+  return uniqueArr.length;
+}
 
 export class MapStyles {
   #maps: Array<mapUrlAttribution> = [
     {
-      url: "https://api.mapbox.com/styles/v1/mapbox/satellite-v9/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoiZWRnYXJiYXJyb3NvIiwiYSI6ImNsZGthYm1haDA0cWQzdmxjdnNwcnJoeGoifQ.VWGQI2nHd22h3A54eYWXOQ",
+      url: "https://api.mapbox.com/styles/v1/mapbox/light-v8/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoiZWRnYXJiYXJyb3NvIiwiYSI6ImNsZGthYm1haDA0cWQzdmxjdnNwcnJoeGoifQ.VWGQI2nHd22h3A54eYWXOQ",
       attribution: "Map data © Mapbox",
     },
     {
-      url: "https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png",
-      attribution: "Map data © Stadia Maps",
+      url: "https://api.mapbox.com/styles/v1/mapbox/dark-v8/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoiZWRnYXJiYXJyb3NvIiwiYSI6ImNsZGthYm1haDA0cWQzdmxjdnNwcnJoeGoifQ.VWGQI2nHd22h3A54eYWXOQ",
+      attribution: "Map data © Mapbox",
     },
+    {
+      url: "https://api.mapbox.com/styles/v1/mapbox/satellite-v9/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoiZWRnYXJiYXJyb3NvIiwiYSI6ImNsZGthYm1haDA0cWQzdmxjdnNwcnJoeGoifQ.VWGQI2nHd22h3A54eYWXOQ",
+      attribution: "Map data © Mapbox",
+    }, 
   ];
   #index: number = 0;
   #len: number = this.#maps.length;

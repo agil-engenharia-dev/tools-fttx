@@ -1,5 +1,5 @@
-import { ButtonContainer } from "../ButtonStyle/style"
-import { TrashButtonContainer } from "../ElementsGeojson/TrashButtonContainer/style"
+import { ButtonContainer } from "../../ButtonStyle/style"
+import { TrashButtonContainer } from "../../TrashButtonContainer/style"
 
 interface props{
     removeElementsInPolygon:()=>void
