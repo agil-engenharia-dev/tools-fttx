@@ -13,12 +13,15 @@ import {
   isLineWithinRadiusOfPoint,
   convertKmlToGeojson,
   removePlacemarksByIds,
+  downloadFileKml,
 } from "../../utils";
 import { DownloadButton } from "../DownloadButton";
 import { ButtonBar } from "../ButtonBar";
 import { ButtonChangeMap } from "../ButtonChangeMap";
 import { ButtonRemovePointsNotUsed } from "./ButtonRemovePointsNotUsed";
 import { InputRadiusPoints } from "./InputRadiusPoints";
+import { ButtonContainer } from "../ButtonStyle/style";
+import { ButtonHome } from "../ButtonHome";
 
 interface props {
   fileContent: string;
@@ -30,9 +33,7 @@ export function App2({ fileContent }: props) {
   const refTileLayer = useRef(null);
   const mapStyles = useMemo(() => new MapStyles(), []);
   const kmlWithIDs = useMemo(() => addIdToPlacemarks(fileContent), []);
-  const [geojson, setGeojson] = useState(
-    convertKmlToGeojson(fileContent)
-  );
+  const [geojson, setGeojson] = useState(convertKmlToGeojson(fileContent));
 
   const removeNotUsedPoints = () => {
     const radius = 10;
@@ -88,19 +89,8 @@ export function App2({ fileContent }: props) {
     const notDeletedIDs = geojson.features.map(
       (feature: GeoJSONFeature) => feature.id
     );
-    newFileContent = removePlacemarksByIds(newFileContent,notDeletedIDs)
-    downloadFile(newFileContent);
-  };
-
-  const downloadFile = (kmlFileText: string) => {
-    const blob = new Blob([kmlFileText], { type: "text/plain" });
-    const href = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = href;
-    link.download = "pontos-removidos.kml";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    newFileContent = removePlacemarksByIds(newFileContent, notDeletedIDs);
+    downloadFileKml(newFileContent);
   };
 
   const changeRadiusOfPoints = () => {};
@@ -131,10 +121,10 @@ export function App2({ fileContent }: props) {
       </FeatureGroup>
       <ButtonBar>
         <ButtonRemovePointsNotUsed removeNotUsedPoints={removeNotUsedPoints} />
-        <DownloadButton saveKml={saveKml} />
+        <DownloadButton save={saveKml} />
         <ButtonChangeMap changeMap={changeMap} />
       </ButtonBar>
-      
+      <ButtonHome />
     </MapContainerStyle>
   );
 }

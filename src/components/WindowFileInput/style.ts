@@ -40,7 +40,7 @@ export const FileInputContainer = styled.div<props>`
         justify-content: center;
         gap: 20px;
 
-        input::file-selector-button,button{
+        input::file-selector-button, button{
             border: none;
             background-color: ${props=>props.theme.primary};
             color: ${props=>props.theme.fontColor};
@@ -51,7 +51,11 @@ export const FileInputContainer = styled.div<props>`
             width: 150px;
             height: 50px;
             opacity: 1;
-     
+        }
+        
+        section{
+            display: flex;
+            gap :20%;
         }
 
         button{
@@ -65,6 +69,7 @@ export const FileInputContainer = styled.div<props>`
 
         }
 
+        
         input::file-selector-button{
             margin-right: 30px;
         }

@@ -18,6 +18,7 @@ export class MapboxMap extends Component<Props, State> {
       "pk.eyJ1IjoiZWRnYXJiYXJyb3NvIiwiYSI6ImNsZGthYm1haDA0cWQzdmxjdnNwcnJoeGoifQ.VWGQI2nHd22h3A54eYWXOQ";
     this.map = new mapboxgl.Map({
       container: this.mapContainer!,
+      //@ts-ignore
       style: this.props.theme.mapTheme,
       center: [-87.62712, 41.89033],
       zoom: 16.5,
@@ -48,6 +49,7 @@ export class MapboxMap extends Component<Props, State> {
         type: "fill-extrusion",
         minzoom: 15,
         paint: {
+          //@ts-ignore
           "fill-extrusion-color": `${this.props.theme.secondary}`,
 
           // use an 'interpolate' expression to add a smooth transition effect to the

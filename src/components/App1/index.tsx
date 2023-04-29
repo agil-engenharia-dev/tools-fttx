@@ -14,10 +14,13 @@ import {
   MapStyles,
   convertKmlToGeojson,
   removePlacemarksByIds,
+  downloadFileKml,
 } from "../../utils";
 import { DownloadButton } from "../DownloadButton";
 import { ButtonChangeMap } from "../ButtonChangeMap";
 import { ButtonBar } from "../ButtonBar";
+import { ButtonContainer } from "../ButtonStyle/style";
+import { ButtonHome } from "../ButtonHome";
 
 interface props {
   fileContent: string;
@@ -69,19 +72,9 @@ export function App1({ fileContent }: props) {
       (feature: GeoJSONFeature) => feature.id
     );
     newFileContent = removePlacemarksByIds(newFileContent,notDeletedIDs)
-    downloadFile(newFileContent);
+    downloadFileKml(newFileContent);
   };
 
-  const downloadFile = (kmlFileText: string) => {
-    const blob = new Blob([kmlFileText], { type: "text/plain" });
-    const href = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = href;
-    link.download = "pontos-removidos.kml";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
 
   const changeMap = ()=>{
     mapStyles.changeMap()
@@ -121,10 +114,11 @@ export function App1({ fileContent }: props) {
         />
       </FeatureGroup>
       <ButtonBar>
-        <DownloadButton saveKml={saveKml} />
+        <DownloadButton save={saveKml} />
         <ButtonRemoveElements removeElementsInPolygon={removeElementsInPolygon} />
         <ButtonChangeMap changeMap={changeMap}/>
       </ButtonBar>
+        <ButtonHome/>
     </MapContainerStyle>
   );
 }

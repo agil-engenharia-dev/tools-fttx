@@ -6,20 +6,20 @@ import { App1 } from "./components/App1";
 import { useState, useMemo } from "react";
 import { ThemeProvider } from "styled-components";
 import { defaultTheme } from "./styles/themes/default";
-import { darkTheme } from "./styles/themes/dark";
 import { ThemeType } from "./@types/style";
 import { App2 } from "./components/App2";
-import { App3 } from "./components/App3";
+import { App3 } from "./components/App3";                           
+import { App4 } from "./components/App4";
 
 export function App() {
   const [fileContent, setFileContent] = useState<string | null>(null);
-  const [appSelected, setAppSelected] = useState<string | null>(null);
+  const [appSelected, setAppSelected] = useState<string | null>('app3');
   const [themeContext, setThemeContext] = useState<ThemeType>(defaultTheme);
   const MapboxMapComponent = useMemo(
     () => <MapboxMap theme={themeContext} />,
     []
   );
-  const handleAppSelected = (text: string) => setAppSelected(text);
+  const handleAppSelected = (text: string | null) => setAppSelected(text);
   const handleFileContent = (text: string) => setFileContent(text);
 
   const renderSideBar = () => {
@@ -32,7 +32,7 @@ export function App() {
 
   const renderFileInputWindow = () => {
     if (!fileContent && appSelected) {
-      return <WindowFileInput handleFileContent={handleFileContent} namefile='projeto.kml'/>;
+      return <WindowFileInput handleFileContent={handleFileContent} handleAppSelected={handleAppSelected} namefile='projeto.kml'/>;
     }
     return null;
   };
@@ -46,12 +46,12 @@ export function App() {
 
   const renderApps = () => {
     if (fileContent && appSelected) {
-      if (appSelected==='app1')
-        return <App1 fileContent={fileContent} />;
-      if (appSelected==='app2')
-        return <App2 fileContent={fileContent} />;
-      if (appSelected==='app3')
-        return <App3 fileContent={fileContent} />;
+      switch(appSelected){
+        case 'app1':return <App1 fileContent={fileContent} />;
+        case 'app2':return <App2 fileContent={fileContent} />;
+        case 'app3':return <App3 fileContent={fileContent} />;
+        case 'app4':return <App4 fileContent={fileContent} />;
+      }
     }
     return null;
   };

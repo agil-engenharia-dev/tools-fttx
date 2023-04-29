@@ -2,18 +2,17 @@ import { FeatureGroup, GeoJSON, LayersControl, Marker, Popup } from "react-leafl
 import L, { bounds } from "leaflet";
 import { GeoJSONInterface } from "../../../../../@types/style";
 import { StyledPopup } from "../../../../StyledPopup/style";
-import { StyledTable } from "./style";
 
 interface props {
-    geojsonAnchors: GeoJSONInterface;
+    geojsonPostes: GeoJSONInterface;
 
 }
 
-export function AnchorsGeojson({ geojsonAnchors}: props) {
+export function PostesGeojson({ geojsonPostes}: props) {
   return (
-    <LayersControl.Overlay name="Ancoragens/Passagens" checked>
+    <LayersControl.Overlay name="Postes" checked>
     <FeatureGroup>
-      {geojsonAnchors.features.map((feature) => {
+      {geojsonPostes.features.map((feature) => {
         return (
           <GeoJSON
             key={feature.id}
@@ -25,28 +24,14 @@ export function AnchorsGeojson({ geojsonAnchors}: props) {
               const swCoord = latlng.toBounds(height / 2).getSouthWest();
 
               return L.rectangle(new L.LatLngBounds(neCoord,swCoord), {
-                fillColor: feature.properties.bap ? "#fb00ff" : "#C0C0C0",
+                fillColor: "#C0C0C0",
                 fillOpacity: 1,
               });
             }}
           >
             <Popup>
               <StyledPopup>
-              <StyledTable>
-                <thead>
-                <tr>
-                    <th>supas</th>
-                    <th>alças</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td>{feature.properties.supa}</td>
-                    <td>{feature.properties.alca}</td>
-                </tr>
-                </tbody>
-               </StyledTable>
-               
+                <p style={{ color: "#000" }}>{feature.properties.name}</p>
               </StyledPopup>
             </Popup>
           </GeoJSON>

@@ -12,8 +12,13 @@ export const GlobalStyle = createGlobalStyle<props>`
         box-sizing: border-box;
         font-family: 'Roboto', sans-serif;
         font-weight: 700;
-        color: ${props=>props.theme.fontColor};
+        color: '#000';
     }
+
+
+    
+  
+    
 
 
 `

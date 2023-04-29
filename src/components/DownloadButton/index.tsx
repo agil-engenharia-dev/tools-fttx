@@ -1,10 +1,10 @@
 import { ButtonContainer } from "../ButtonStyle/style"
-
+import {GrDocumentCsv} from 'react-icons/Gr'
 interface props{
-    saveKml:()=>void
+    save:()=>void
 }
 
-export function DownloadButton({saveKml}:props){
-    return (<ButtonContainer title="Download" onClick={saveKml}>⭳</ButtonContainer>)
+export function DownloadButton({save}:props){
+    return (<ButtonContainer title="Download" onClick={save}><GrDocumentCsv/></ButtonContainer>)
 
 }

@@ -42,6 +42,16 @@ export function SideBar({ handleAppSelected }: props) {
           Ferramenta oferece uma solução sofisticada para o dimensionamento preciso dos materiais necessários para projetos FTTH, calculando de forma inteligente a localização ideal para ancoragem dos cabos em postes.
         </p>
       </button>
+      <button
+        onClick={() => {
+          handleAppSelected("app4");
+        }}
+      >
+        <h1>App4</h1>
+        <p>
+          Ferramenta oferece uma solução sofisticada para o dimensionamento preciso dos materiais necessários para projetos FTTH, calculando de forma inteligente a localização ideal para ancoragem dos cabos em postes.
+        </p>
+      </button>
     </SideBarContainer>
   );
 }

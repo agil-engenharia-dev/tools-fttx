@@ -2,7 +2,6 @@ import { FeatureGroup, GeoJSON, LayersControl, Marker, Popup } from "react-leafl
 import L, { bounds } from "leaflet";
 import { GeoJSONInterface } from "../../../../../@types/style";
 import { StyledPopup } from "../../../../StyledPopup/style";
-import { StyledTable } from "./style";
 
 interface props {
     geojsonAnchors: GeoJSONInterface;
@@ -32,11 +31,11 @@ export function AnchorsGeojson({ geojsonAnchors}: props) {
           >
             <Popup>
               <StyledPopup>
-              <StyledTable>
+              <table border={1}>
                 <thead>
                 <tr>
-                    <th>supas</th>
-                    <th>alças</th>
+                    <td>supas</td>
+                    <td>alças</td>
                 </tr>
                 </thead>
                 <tbody>
@@ -45,7 +44,7 @@ export function AnchorsGeojson({ geojsonAnchors}: props) {
                     <td>{feature.properties.alca}</td>
                 </tr>
                 </tbody>
-               </StyledTable>
+               </table>
                
               </StyledPopup>
             </Popup>

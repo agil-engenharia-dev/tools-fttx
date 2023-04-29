@@ -8,5 +8,6 @@ export const ButtonBarContainer = styled.div`
     background: transparent;
     top: 150px;
     right: 10px;
-    border-radius:5px;
+    gap: 10px;
+
 `

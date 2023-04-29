@@ -12,13 +12,14 @@ export const SideBarContainer = styled.div<props>`
     width: 400px;
     height: 100%;
     z-index: 1;
+    overflow-x: auto;
 
     img{
         margin-top: 30px;
-        opacity: 1;
     }
 
     button{
+        display: inline-block;
         border: none;
         background-color: ${props=>props.theme.secondary};
         border: 2px solid ${props=>props.theme.primary};

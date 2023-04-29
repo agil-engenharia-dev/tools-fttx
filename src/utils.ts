@@ -147,6 +147,7 @@ export function isLineWithinRadiusOfPoint(
     };
     const distance = distanceFromPointToLine(
       point.geometry.coordinates,
+      //@ts-ignore
       l1,
       l2
     );
@@ -429,4 +430,73 @@ export class MapStyles {
   getAttribution() {
     return this.#maps[this.#index].attribution;
   }
+}
+
+export function downloadFileKml(kmlFileText: string){
+  const blob = new Blob([kmlFileText], { type: "text/plain" });
+  const href = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = href;
+  link.download = "file.kml";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
+
+
+export function downloadFileCsv(csvFileText: string){
+  const blob = new Blob([csvFileText], { type: "text/plain" });
+  const href = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = href;
+  link.download = "ferragens.csv";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
+
+export function distanciaPontoReta(ponto1: [number, number], ponto2: [number, number], ponto3: [number, number]): number {
+  // Convertendo as coordenadas de graus para radianos
+  const lat1 = ponto1[0] * Math.PI / 180;
+  const lon1 = ponto1[1] * Math.PI / 180;
+  const lat2 = ponto2[0] * Math.PI / 180;
+  const lon2 = ponto2[1] * Math.PI / 180;
+  const lat3 = ponto3[0] * Math.PI / 180;
+  const lon3 = ponto3[1] * Math.PI / 180;
+
+  // Calculando a distância entre os pontos 1 e 2
+  const R = 6371e3; // Raio médio da Terra em metros
+  const phi1 = lat1;
+  const phi2 = lat2;
+  const deltaPhi = (lat2-lat1);
+  const deltaLambda = (lon2-lon1);
+
+  const a = Math.sin(deltaPhi/2) * Math.sin(deltaPhi/2) +
+          Math.cos(phi1) * Math.cos(phi2) *
+          Math.sin(deltaLambda/2) * Math.sin(deltaLambda/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  const d = R * c;
+
+  // Calculando a projeção ortogonal do ponto 3 na reta
+  const x1 = R * Math.cos(lat1) * Math.cos(lon1);
+  const y1 = R * Math.cos(lat1) * Math.sin(lon1);
+  const z1 = R * Math.sin(lat1);
+  const x2 = R * Math.cos(lat2) * Math.cos(lon2);
+  const y2 = R * Math.cos(lat2) * Math.sin(lon2);
+  const z2 = R * Math.sin(lat2);
+  const x3 = R * Math.cos(lat3) * Math.cos(lon3);
+  const y3 = R * Math.cos(lat3) * Math.sin(lon3);
+  const z3 = R * Math.sin(lat3);
+
+  const dx = x2 - x1;
+  const dy = y2 - y1;
+  const dz = z2 - z1;
+  const u = ((x3 - x1) * dx + (y3 - y1) * dy + (z3 - z1) * dz) / (dx*dx + dy*dy + dz*dz);
+  const x = x1 + u*dx;
+  const y = y1 + u*dy;
+  const z = z1 + u*dz;
+
+  const distancia = Math.sqrt((x-x3)*(x-x3) + (y-y3)*(y-y3) + (z-z3)*(z-z3));
+
+  return distancia;
 }

@@ -1,5 +1,5 @@
 import { ButtonContainer } from "../ButtonStyle/style";
-
+import {FiMap} from 'react-icons/fi'
 interface props {
     changeMap:()=>void;
 }
@@ -7,7 +7,7 @@ interface props {
 export function ButtonChangeMap({changeMap}:props){
     return(
     <ButtonContainer onClick={changeMap} title="Change Map">
-        <img src="https://cdn-icons-png.flaticon.com/512/235/235861.png" />
+        <FiMap/>
     </ButtonContainer>
     )
 }
