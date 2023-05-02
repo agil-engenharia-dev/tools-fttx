@@ -238,7 +238,7 @@ export function App3({ fileContent }: props) {
                         "Caixas de atendimento"
                     )) &&
                 feature.geometry.type === "Point"
-        )
+        );
         setGeojsonPostes((state) => ({
             ...state,
             features: postes,
@@ -253,6 +253,7 @@ export function App3({ fileContent }: props) {
             features: cabos,
         }));
     }, [geojson]);
+
     const calculeAnchors = () => {
         const postes = geojsonPostes.features.map((poste: GeoJSONFeature) => {
             poste.properties = {
@@ -367,14 +368,14 @@ export function App3({ fileContent }: props) {
                 }
             });
             geojsonCabos.features.forEach((cabo: GeoJSONFeature) => {
-                const meters = caboMeters(cabo);
                 cabo.geometry.coordinates.forEach((coordinate: number[]) => {
                     geojsonCtos.features.forEach((cto, index) => {
                         if (
                             calculateDistance(
                                 cto.geometry.coordinates,
                                 coordinate
-                            ) < 3
+                            ) < 3 &&
+                            pointInPolygon(cto, layer.toGeoJSON())
                         ) {
                             if (
                                 index === 0 ||
