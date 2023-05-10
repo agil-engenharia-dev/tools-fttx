@@ -235,7 +235,7 @@ export function App3({ fileContent }: props) {
             (feature) =>
                 (feature.properties.folderName.includes("Ramal") ||
                     feature.properties.folderName.includes(
-                        "Caixas de atendimento"
+                        "Caixas"
                     )) &&
                 feature.geometry.type === "Point"
         );
