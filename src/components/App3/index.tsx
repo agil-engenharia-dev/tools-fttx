@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { FeatureGroup, LayersControl, TileLayer } from "react-leaflet";
+import { FeatureGroup, LayersControl, TileLayer, GeoJSON } from "react-leaflet";
 import { MapContainerStyle } from "./style";
 import { GeoJSONFeature, GeoJSONInterface } from "./../../../src/@types/style";
 import {
@@ -30,7 +30,7 @@ interface props {
     fileContent: string;
 }
 
-function joinCabosInPostes(cabos: GeoJSONFeature[], postes: GeoJSONFeature[]) {
+function joinCabosInPoints(cabos: GeoJSONFeature[], postes: GeoJSONFeature[]) {
     cabos.forEach((cabo) => {
         cabo.geometry.coordinates = cabo.geometry.coordinates.map(
             (coordinate: number[]) => {
@@ -201,29 +201,35 @@ function calculePassagens(
     });
 }
 
-const initialGeoJSON: GeoJSONInterface = {
-    type: "FeatureCollection",
-    features: [],
-};
 
 export function App3({ fileContent }: props) {
     const refLayerPolygons = useRef(null);
     const refTileLayer = useRef(null);
     const mapStyles = useMemo(() => new MapStyles(), []);
     const [geojson, setGeojson] = useState(convertKmlToGeojson(fileContent));
+    const [load, setLoad] = useState(false);
 
-    const [geojsonPostes, setGeojsonPostes] =
-        useState<GeoJSONInterface>(initialGeoJSON);
-    const [geojsonCabos, setGeojsonCabos] =
-        useState<GeoJSONInterface>(initialGeoJSON);
-    const [geojsonCtos, setGeojsonCtos] =
-        useState<GeoJSONInterface>(initialGeoJSON);
-    const [geojsonAnchors, setGeojsonAnchors] =
-        useState<GeoJSONInterface>(initialGeoJSON);
+    const [geojsonPostes, setGeojsonPostes] = useState<GeoJSONInterface>({
+        type: "FeatureCollection",
+        features: [],
+    });
+    const [geojsonCabos, setGeojsonCabos] = useState<GeoJSONInterface>({
+        type: "FeatureCollection",
+        features: [],
+    });
+    const [geojsonCtos, setGeojsonCtos] = useState<GeoJSONInterface>({
+        type: "FeatureCollection",
+        features: [],
+    });
+    const [geojsonAnchors, setGeojsonAnchors] = useState<GeoJSONInterface>({
+        type: "FeatureCollection",
+        features: [],
+    });
     useEffect(() => {
         const cabos = geojson.features.filter(
             (feature) =>
-                feature.properties.folderName.includes("Cabos") &&
+                (feature.properties.folderName.includes("Cabos") ||
+                    feature.properties.folderName.includes("Backbone")) &&
                 feature.geometry.type === "LineString"
         );
         const postes = geojson.features.filter(
@@ -234,9 +240,7 @@ export function App3({ fileContent }: props) {
         const ctos = geojson.features.filter(
             (feature) =>
                 (feature.properties.folderName.includes("Ramal") ||
-                    feature.properties.folderName.includes(
-                        "Caixas"
-                    )) &&
+                    feature.properties.folderName.includes("Caixas")) &&
                 feature.geometry.type === "Point"
         );
         setGeojsonPostes((state) => ({
@@ -301,8 +305,9 @@ export function App3({ fileContent }: props) {
         const ctos = geojsonCtos.features.map((cto: GeoJSONFeature) => {
             return cto;
         });
-        joinCabosInPostes(cabos, postes);
+        joinCabosInPoints(cabos, postes);
         joinCtosInPostes(ctos, postes);
+        joinCabosInPoints(cabos, ctos);
         calculeBaps(cabos, postes);
         calculeAlcas(cabos, postes);
         calculeSupas(cabos, postes);
@@ -310,20 +315,25 @@ export function App3({ fileContent }: props) {
 
         setGeojson((state) => ({
             ...state,
-            features: [...postes, ...cabos, ...ctos],
+            features: [...ctos, ...cabos],
         }));
 
         setGeojsonAnchors((state) => ({
             ...state,
-            features: postes,
+            features: [...postes],
         }));
+
+        setLoad(true);
     };
 
     const calculeAnchorsInPolygons = () => {
         //@ts-ignore
         let polygonsGeojson = refLayerPolygons.current!.toGeoJSON();
         //@ts-ignore
-        const geojsonNewsCabos = initialGeoJSON;
+        const geojsonNewsCabos:GeoJSONInterface = {
+            type: "FeatureCollection",
+            features: [],
+        };
         geojsonCabos.features.forEach((cabo) => {
             if (cabo.geometry.coordinates.length > 2) {
                 cabo.geometry.coordinates.forEach(
@@ -357,6 +367,7 @@ export function App3({ fileContent }: props) {
         //@ts-ignore
         refLayerPolygons.current!.getLayers().map((layer) => {
             const polygon = layer.toGeoJSON();
+
             let reservaMeters = 0;
             let meters = 0;
             let baps = 0;
@@ -389,7 +400,6 @@ export function App3({ fileContent }: props) {
                     });
                 });
             });
-
             geojsonAnchors.features.forEach((feature: GeoJSONFeature) => {
                 if (pointInPolygon(feature, polygon)) {
                     if (feature.properties.bap) {
@@ -463,9 +473,11 @@ export function App3({ fileContent }: props) {
 
     return (
         <MapContainerStyle
+        key={String(load)}
             zoomControl={false}
             center={findCenter(geojson)}
             zoom={14}
+            maxZoom={20}
             doubleClickZoom={false}>
             <TileLayer
                 ref={refTileLayer}
@@ -474,10 +486,11 @@ export function App3({ fileContent }: props) {
             />
             <LayersControl position="bottomleft">
                 <FeatureGroup>
-                    <AnchorsGeojson geojsonAnchors={geojsonAnchors} />
                     <CabosGeojson geojsonCabos={geojsonCabos} />
                     <CtosGeojson geojsonCtos={geojsonCtos} />
-                    <PostesGeojson geojsonPostes={geojsonPostes} />
+                    <AnchorsGeojson geojsonAnchors={geojsonAnchors} />
+
+                    {!load && <PostesGeojson geojsonPostes={geojsonPostes} />}
                 </FeatureGroup>
             </LayersControl>
             <ButtonBar>
