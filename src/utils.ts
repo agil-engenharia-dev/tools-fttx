@@ -5,6 +5,8 @@ import {
 } from "../src/@types/style";
 import L, { LatLngTuple } from "leaflet";
 
+export const accessToken = "pk.eyJ1IjoiZWRnYXJiYXJyb3NvIiwiYSI6ImNsbDlweDM1ejBmN3gzam1ha2t5bzJmOXoifQ.eweemsPq2xCXhR_D8q1v0w"
+
 export function addIdToPlacemarks(kml: string) {
     const kmlNoIds = removePlacemarkIds(kml);
     let placemarkCount = 0;
@@ -423,15 +425,15 @@ export function countUnrepeatedCabos(coordinates: number[][][]) {
 export class MapStyles {
     #maps: Array<mapUrlAttribution> = [
         {
-            url: "https://api.mapbox.com/styles/v1/mapbox/light-v8/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoiZWRnYXJiYXJyb3NvIiwiYSI6ImNsbmJ3dG5zYjBiaHQyaXJ4czNqMmVjY2wifQ.cFM0o4mDjLEryPvrV4xobg",
+            url: `https://api.mapbox.com/styles/v1/mapbox/light-v8/tiles/{z}/{x}/{y}?access_token=${accessToken}`,
             attribution: "Map data © Mapbox",
         },
         {
-            url: "https://api.mapbox.com/styles/v1/mapbox/dark-v8/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoiZWRnYXJiYXJyb3NvIiwiYSI6ImNsbmJ3dG5zYjBiaHQyaXJ4czNqMmVjY2wifQ.cFM0o4mDjLEryPvrV4xobg",
+            url: `https://api.mapbox.com/styles/v1/mapbox/dark-v8/tiles/{z}/{x}/{y}?access_token=${accessToken}`,
             attribution: "Map data © Mapbox",
         },
         {
-            url: "https://api.mapbox.com/styles/v1/mapbox/satellite-v9/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoiZWRnYXJiYXJyb3NvIiwiYSI6ImNsbmJ3dG5zYjBiaHQyaXJ4czNqMmVjY2wifQ.cFM0o4mDjLEryPvrV4xobg",
+            url: `https://api.mapbox.com/styles/v1/mapbox/satellite-v9/tiles/{z}/{x}/{y}?access_token=${accessToken}`,
             attribution: "Map data © Mapbox",
         },
     ];

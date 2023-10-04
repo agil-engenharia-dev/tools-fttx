@@ -1,5 +1,5 @@
 import { ButtonContainer } from "../ButtonStyle/style"
-import {GrDocumentCsv} from 'react-icons/Gr'
+import {GrDocumentCsv} from 'react-icons/gr'
 interface props{
     save:()=>void
 }
