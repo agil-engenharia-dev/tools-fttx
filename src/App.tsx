@@ -13,7 +13,7 @@ import { App4 } from "./components/App4";
 
 export function App() {
   const [fileContent, setFileContent] = useState<string | null>(null);
-  const [appSelected, setAppSelected] = useState<string | null>('app3');
+  const [appSelected, setAppSelected] = useState<string | null>('app2');
   const [themeContext, setThemeContext] = useState<ThemeType>(defaultTheme);
   const MapboxMapComponent = useMemo(
     () => <MapboxMap theme={themeContext} />,
