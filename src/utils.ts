@@ -423,15 +423,15 @@ export function countUnrepeatedCabos(coordinates: number[][][]) {
 export class MapStyles {
     #maps: Array<mapUrlAttribution> = [
         {
-            url: "https://api.mapbox.com/styles/v1/mapbox/light-v8/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoiZWRnYXJiYXJyb3NvIiwiYSI6ImNsZGthYm1haDA0cWQzdmxjdnNwcnJoeGoifQ.VWGQI2nHd22h3A54eYWXOQ",
+            url: "https://api.mapbox.com/styles/v1/mapbox/light-v8/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoiZWRnYXJiYXJyb3NvIiwiYSI6ImNsbDlweDM1ejBmN3gzam1ha2t5bzJmOXoifQ.eweemsPq2xCXhR_D8q1v0w",
             attribution: "Map data © Mapbox",
         },
         {
-            url: "https://api.mapbox.com/styles/v1/mapbox/dark-v8/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoiZWRnYXJiYXJyb3NvIiwiYSI6ImNsZGthYm1haDA0cWQzdmxjdnNwcnJoeGoifQ.VWGQI2nHd22h3A54eYWXOQ",
+            url: "https://api.mapbox.com/styles/v1/mapbox/dark-v8/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoiZWRnYXJiYXJyb3NvIiwiYSI6ImNsbDlweDM1ejBmN3gzam1ha2t5bzJmOXoifQ.eweemsPq2xCXhR_D8q1v0w",
             attribution: "Map data © Mapbox",
         },
         {
-            url: "https://api.mapbox.com/styles/v1/mapbox/satellite-v9/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoiZWRnYXJiYXJyb3NvIiwiYSI6ImNsZGthYm1haDA0cWQzdmxjdnNwcnJoeGoifQ.VWGQI2nHd22h3A54eYWXOQ",
+            url: "https://api.mapbox.com/styles/v1/mapbox/satellite-v9/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoiZWRnYXJiYXJyb3NvIiwiYSI6ImNsbDlweDM1ejBmN3gzam1ha2t5bzJmOXoifQ.eweemsPq2xCXhR_D8q1v0w",
             attribution: "Map data © Mapbox",
         },
     ];
